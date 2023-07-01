@@ -1,4 +1,6 @@
+import { buttonVariants } from "@/components/ui/Button";
 import { HomeIcon } from "lucide-react";
+import Link from "next/link";
 
 const Home = () => {
   return (
@@ -24,6 +26,15 @@ const Home = () => {
                 communities. Join us to check in!
               </p>
             </div>
+
+            <Link
+              href='/r/create'
+              className={buttonVariants({
+                className: "w-full mt-4 mb-6",
+              })}
+            >
+              Create Community
+            </Link>
           </div>
         </div>
       </div>
