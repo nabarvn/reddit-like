@@ -34,7 +34,7 @@ const CommentVoteSystem = ({
   const { loginToast } = useCustomToast();
   const prevCommentVote = usePrevious(currentCommentVote);
 
-  // to make sure that the server and client are in sync when it comes to the value of `initialPostVote`
+  // to make sure that the server and client are in sync when it comes to the value of `initialCommentVote`
   useEffect(() => {
     setCurrentCommentVote(initialCommentVote);
   }, [initialCommentVote]);
