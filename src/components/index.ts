@@ -1,4 +1,4 @@
-// export { default as Navbar } from "./Navbar";
+export { default as Navbar } from "./Navbar";
 export { default as Icons } from "./Icons";
 export { default as SignIn } from "./SignIn";
 export { default as SignUp } from "./SignUp";
@@ -13,3 +13,10 @@ export { default as Editor } from "./Editor";
 export { default as PostFeed } from "./PostFeed";
 export { default as PostCard } from "./PostCard";
 export { default as EditorOutput } from "./EditorOutput";
+export { default as CommentSection } from "./CommentSection";
+export { default as PostComment } from "./PostComment";
+export { default as CreateComment } from "./CreateComment";
+export { default as CommentVoteSystem } from "./CommentVoteSystem";
+export { default as SearchBar } from "./SearchBar";
+export { default as UsernameForm } from "./UsernameForm";
+export { default as ToFeedButton } from "./ToFeedButton";
