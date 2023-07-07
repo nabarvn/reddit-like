@@ -3,3 +3,8 @@ export { Toast } from "./Toast";
 export { Toaster } from "./Toaster";
 export { Avatar } from "./Avatar";
 export { Input } from "./Input";
+export { Label } from "./Label";
+export { Textarea } from "./Textarea";
+export { Command } from "./Command";
+export { Dialog } from "./Dialog";
+export { Card } from "./Card";
