@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     });
 
     if (subscriptionExists) {
-      return new Response("You are already subscribed to this subreddit.", {
+      return new Response("You are already subscribed to this subreddit", {
         status: 400,
       });
     }
@@ -45,8 +45,6 @@ export async function POST(req: Request) {
       return new Response("Invalid request data passed", { status: 422 });
     }
 
-    return new Response("Could not subscribe, please try again.", {
-      status: 500,
-    });
+    return new Response("Could not subscribe", { status: 500 });
   }
 }

@@ -1,4 +1,4 @@
-import { SubscriptionToggle } from "@/components";
+import { SubscriptionToggle, ToFeedButton } from "@/components";
 import { buttonVariants } from "@/components/ui/Button";
 import { getAuthSession } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -56,15 +56,17 @@ const SubredditLayout = async ({
   });
 
   return (
-    <div className='sm:container max-w-7xl mx-auto h-full pt-12'>
+    <div className='md:container max-w-6xl mx-auto h-full pt-12 px-5'>
       <div>
-        {/* TODO: Button to take us back */}
+        <ToFeedButton />
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-y-4 md:gap-x-4 py-6'>
-          <div className='flex flex-col col-span-2 space-y-6'>{children}</div>
+          <div className='flex flex-col col-span-2 space-y-6 border-t-2 border-t-zinc-300 md:border-none pt-12 md:pt-0 mt-10 md:mt-0'>
+            {children}
+          </div>
 
           {/* info sidebar */}
-          <div className='hidden md:flex md:flex-col overflow-hidden h-fit rounded-lg shadow border border-gray-200 order-first md:order-last'>
+          <div className='flex flex-col overflow-hidden h-fit rounded-lg shadow border border-gray-200 order-first md:order-last'>
             <div className='h-1/3 px-3 lg:px-6 py-4'>
               <p className='font-semibold h-fit py-1'>About r/{slug}</p>
             </div>

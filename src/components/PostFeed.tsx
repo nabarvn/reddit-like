@@ -6,8 +6,9 @@ import { useIntersection } from "@mantine/hooks";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { PostCard } from "@/components";
+import { Loader2 } from "lucide-react";
 
 interface PostFeedProps {
   initialPosts: ExtendedPost[];
@@ -44,13 +45,19 @@ const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
     }
   );
 
+  useEffect(() => {
+    if (entry?.isIntersecting) {
+      fetchNextPage();
+    }
+  }, [entry, fetchNextPage]);
+
   const posts = data?.pages.flatMap((page) => page) ?? initialPosts;
 
   return (
     <ul className='flex flex-col col-span-2 space-y-6'>
       {posts.map((post, index) => {
         // calculate total post votes amount
-        const postVotesInteger = post.postVotes.reduce((acc, postVote) => {
+        const postVotesAmount = post.postVotes.reduce((acc, postVote) => {
           if (postVote.type === "UP") return acc + 1;
           if (postVote.type === "DOWN") return acc - 1;
 
@@ -65,13 +72,21 @@ const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
         // render more posts when intersection observer crosses the last viewable post
         if (index === posts.length - 1) {
           return (
-            <li key={post.id} ref={observerRef}>
+            <li key={post.id} ref={observerRef} className='flex flex-col'>
               <PostCard
                 post={post}
                 subredditName={post.subreddit.name}
                 numberOfComments={post.comments.length}
-                postVotesInteger={postVotesInteger}
+                postVotesAmount={postVotesAmount}
                 currentPostVote={currentPostVote}
+              />
+
+              <Loader2
+                className={
+                  isFetchingNextPage
+                    ? "block animate-spin self-center mt-5"
+                    : "hidden"
+                }
               />
             </li>
           );
@@ -82,7 +97,7 @@ const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
               post={post}
               subredditName={post.subreddit.name}
               numberOfComments={post.comments.length}
-              postVotesInteger={postVotesInteger}
+              postVotesAmount={postVotesAmount}
               currentPostVote={currentPostVote}
             />
           );

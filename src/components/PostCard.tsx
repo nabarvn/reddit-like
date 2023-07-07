@@ -16,7 +16,7 @@ interface PostCardProps {
     postVotes: PostVote[];
   };
   numberOfComments: number;
-  postVotesInteger: number;
+  postVotesAmount: number;
   currentPostVote?: PartialPostVote;
 }
 
@@ -24,14 +24,14 @@ const PostCard = ({
   post,
   subredditName,
   numberOfComments,
-  postVotesInteger: postVotesAmount,
+  postVotesAmount,
   currentPostVote,
 }: PostCardProps) => {
   const postCardRef = useRef<HTMLDivElement>(null); // to dynamically track post card's height
 
   return (
     <div className='rounded-md bg-white shadow'>
-      <div className='flex justify-between px-6 py-4'>
+      <div className='flex justify-between px-3 md:px-6 py-4'>
         <PostVoteClient
           postId={post.id}
           initialPostVotesAmount={postVotesAmount}
@@ -39,23 +39,35 @@ const PostCard = ({
         />
 
         <div className='w-0 flex-1'>
-          <div className='max-h-40 text-xs text-gray-500 mt-1'>
+          <div className='flex items-center max-h-40 text-xs text-gray-500'>
             {subredditName ? (
               <>
                 {/* Use regular HTML anchor tag for the page to hard refresh when the link is clicked */}
                 <a
                   href={`/r/${subredditName}`}
-                  className='underline text-zinc-900 text-sm underline-offset-2'
+                  className='underline text-zinc-900 text-sm self-start underline-offset-2'
                 >
                   r/{subredditName}
                 </a>
               </>
             ) : null}
 
-            <span> • Posted by u/{post.author.name} • </span>
+            <span className='hidden md:block mx-1 mt-0.5'>
+              • Posted by u/{post.author.username} •
+            </span>
 
-            {formatTimeToNow(new Date(post.createdAt))}
+            <span className='hidden md:block mt-0.5'>
+              {formatTimeToNow(new Date(post.createdAt))}
+            </span>
           </div>
+
+          <span className='md:hidden max-h-40 text-xs text-gray-500 mr-1'>
+            Posted by u/{post.author.username} •
+          </span>
+
+          <span className='md:hidden max-h-40 text-xs text-gray-500'>
+            {formatTimeToNow(new Date(post.createdAt))}
+          </span>
 
           <a href={`/r/${subredditName}/post/${post.id}`}>
             <h1 className='text-lg font-semibold leading-6 text-gray-900 py-2'>

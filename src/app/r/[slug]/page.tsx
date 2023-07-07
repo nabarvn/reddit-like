@@ -26,6 +26,9 @@ const CommunityPage = async ({ params }: CommunityPageProps) => {
           comments: true,
           subreddit: true,
         },
+        orderBy: {
+          createdAt: "desc",
+        },
         // Infinite Scrolling Pagination Results
         // `take` determines the number of posts we want to display per fetch
         take: INFINITE_SCROLL_PAGINATION_RESULTS,

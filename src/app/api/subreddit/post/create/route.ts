@@ -24,8 +24,8 @@ export async function POST(req: Request) {
       },
     });
 
-    if (subscriptionExists) {
-      return new Response("Join the community to create post(s).", {
+    if (!subscriptionExists) {
+      return new Response("Join the community to create post(s)", {
         status: 400,
       });
     }
@@ -47,8 +47,6 @@ export async function POST(req: Request) {
       return new Response("Invalid POST request data passed", { status: 422 });
     }
 
-    return new Response("Could not post to subreddit, please try again.", {
-      status: 500,
-    });
+    return new Response("Could not post to subreddit", { status: 500 });
   }
 }
