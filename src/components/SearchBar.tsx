@@ -63,7 +63,7 @@ const SearchBar = () => {
   return (
     <Command
       ref={commandRef}
-      className='relative rounded-lg border max-w-[200px] md:max-w-lg z-50 overflow-visible'
+      className='relative rounded-lg border max-w-[200px] md:max-w-[300px] xl:max-w-[500px] z-50 overflow-visible'
     >
       <CommandInput
         value={input}

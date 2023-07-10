@@ -25,6 +25,7 @@ const style = {
   paragraph: {
     fontSize: "0.875rem",
     lineHeight: "1.25rem",
+    marginTop: "2rem",
   },
 };
 
