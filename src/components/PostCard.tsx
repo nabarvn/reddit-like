@@ -6,6 +6,7 @@ import { MessageSquare } from "lucide-react";
 import { useRef } from "react";
 import { EditorOutput } from "@/components";
 import { PostVoteClient } from "./post-vote";
+import Balancer from "react-wrap-balancer";
 
 type PartialPostVote = Pick<PostVote, "type">;
 
@@ -71,7 +72,7 @@ const PostCard = ({
 
           <a href={`/r/${subredditName}/post/${post.id}`}>
             <h1 className='text-lg font-semibold leading-6 text-gray-900 py-2'>
-              {post.title}
+              <Balancer ratio={0.5}>{post.title}</Balancer>
             </h1>
           </a>
 

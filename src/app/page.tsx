@@ -5,6 +5,7 @@ import { getAuthSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { HomeIcon } from "lucide-react";
 import Link from "next/link";
+import { Balancer } from "react-wrap-balancer";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -79,8 +80,10 @@ const Home = async () => {
           <div className='-my-3 divide-y divide-gray-100 text-sm leading-6 px-3 md:px-6 py-4'>
             <div className='flex justify-between gap-x-4 px-2 md:px-0 py-3'>
               <p className='text-zinc-500'>
-                This is where you can stay connected with your favorite
-                communities. Join to check in!
+                <Balancer ratio={0.5}>
+                  This is where you can stay connected with your favorite
+                  communities. Join to check in!
+                </Balancer>
               </p>
             </div>
 
