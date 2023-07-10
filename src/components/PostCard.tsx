@@ -94,7 +94,11 @@ const PostCard = ({
           href={`/r/${subredditName}/post/${post.id}`}
           className='w-fit flex items-center gap-2'
         >
-          <MessageSquare className='h-4 w-4' /> {numberOfComments} comments
+          <MessageSquare className='h-4 w-4' />
+
+          <span>
+            {numberOfComments} {numberOfComments === 1 ? "comment" : "comments"}
+          </span>
         </a>
       </div>
     </div>
