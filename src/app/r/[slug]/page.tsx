@@ -40,9 +40,7 @@ const CommunityPage = async ({ params }: CommunityPageProps) => {
 
   return (
     <>
-      <h1 className='font-bold text-3xl md:text-4xl h-14'>
-        r/{subreddit.name}
-      </h1>
+      <h1 className='font-bold text-3xl md:text-4xl'>r/{subreddit.name}</h1>
 
       <MiniCreatePost session={session} />
 
