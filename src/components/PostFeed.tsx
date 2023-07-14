@@ -8,7 +8,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef } from "react";
 import { PostCard } from "@/components";
-import { Loader2 } from "lucide-react";
+import { Loader, Loader2 } from "lucide-react";
 
 interface PostFeedProps {
   initialPosts: ExtendedPost[];
@@ -25,25 +25,26 @@ const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
   });
 
   // infinite scrolling functionality
-  const { data, fetchNextPage, isFetchingNextPage } = useInfiniteQuery(
-    ["infinite-query"],
-    async ({ pageParam = 1 }) => {
-      // api endpoint to fetch more posts from db
-      const query =
-        `/api/posts?limit=${INFINITE_SCROLL_PAGINATION_RESULTS}&page=${pageParam}` +
-        (subredditName ? `&subredditName=${subredditName}` : "");
+  const { data, isFetched, fetchNextPage, isFetchingNextPage } =
+    useInfiniteQuery(
+      ["infinite-query"],
+      async ({ pageParam = 1 }) => {
+        // api endpoint to fetch more posts from db
+        const query =
+          `/api/posts?limit=${INFINITE_SCROLL_PAGINATION_RESULTS}&page=${pageParam}` +
+          (subredditName ? `&subredditName=${subredditName}` : "");
 
-      const { data } = await axios.get(query);
+        const { data } = await axios.get(query);
 
-      return data as ExtendedPost[];
-    },
-    {
-      getNextPageParam: (_, pages) => {
-        return pages.length + 1;
+        return data as ExtendedPost[];
       },
-      initialData: { pages: [initialPosts], pageParams: [1] },
-    }
-  );
+      {
+        getNextPageParam: (_, pages) => {
+          return pages.length + 1;
+        },
+        initialData: { pages: [initialPosts], pageParams: [1] },
+      }
+    );
 
   useEffect(() => {
     if (entry?.isIntersecting) {
@@ -53,7 +54,7 @@ const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
 
   const posts = data?.pages.flatMap((page) => page) ?? initialPosts;
 
-  return (
+  return isFetched ? (
     <ul className='flex flex-col col-span-2 space-y-6'>
       {posts.map((post, index) => {
         // calculate total post votes amount
@@ -104,6 +105,8 @@ const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
         }
       })}
     </ul>
+  ) : (
+    <Loader className='h-9 w-9 col-span-2 m-auto animate-spin' />
   );
 };
 

@@ -2,9 +2,13 @@
 
 const CustomCodeRenderer = ({ data }: any) => {
   return (
-    <pre className='bg-gray-800 rounded-md p-4 mt-8'>
-      <code className='text-gray-100 text-sm'>{data.code}</code>
-    </pre>
+    <div className='border-2 bg-gray-800 text-gray-100 text-sm rounded-md p-4 mt-8'>
+      <pre>
+        <code className='block overflow-auto scrollbar-thin scrollbar-track-rounded-md scrollbar-track-gray-800 scrollbar-thumb-rounded-md scrollbar-thumb-gray-100'>
+          {data.code}
+        </code>
+      </pre>
+    </div>
   );
 };
 

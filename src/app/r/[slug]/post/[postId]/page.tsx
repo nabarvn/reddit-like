@@ -70,7 +70,7 @@ const PostDetailsPage = async ({
           />
         </Suspense>
 
-        <div className='sm:w-0 w-full bg-white flex-1 rounded-md p-4'>
+        <div className='w-0 bg-white flex-1 rounded-md p-4'>
           <p className='max-h-40 text-xs text-gray-500 truncate mt-1'>
             Posted by u/{post?.author.username ?? cachedPost.authorUsername}
             <span className='mx-1'>•</span>
