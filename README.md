@@ -46,6 +46,7 @@ npm run dev
 - **ORM Toolkit**: [Prisma](https://www.prisma.io/docs/concepts/overview/what-is-prisma)
 - **Caching Layer**: [Upstash](https://docs.upstash.com/redis)
 - **Database**: [PlanetScale](https://planetscale.com/docs/concepts/what-is-planetscale)
+- **Authentication**: [NextAuth.js](https://next-auth.js.org/getting-started/introduction)
 - **File Hosting**: [UploadThing](https://docs.uploadthing.com)
 - **Deployment**: [Vercel](https://vercel.com)
 
