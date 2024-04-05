@@ -23,14 +23,14 @@ const RootLayout = async ({
 }) => {
   return (
     <html
-      lang='en'
+      lang="en"
       className={cn(
-        "bg-white text-slate-900 antialiased light",
+        "bg-white text-slate-900 antialiased light hydrated",
         inter.className
       )}
     >
       <body
-        className='bg-slate-50 antialiased pt-12'
+        className="bg-slate-50 antialiased pt-12"
         style={{ height: "100svh" }}
       >
         <Providers>
@@ -42,7 +42,7 @@ const RootLayout = async ({
           {authModal}
 
           {/* pages */}
-          <div className='mx-auto h-full overflow-y-auto lg:scrollbar-thin lg:scrollbar-thumb-slate-300 lg:scrollbar-thumb-rounded-sm pt-12'>
+          <div className="mx-auto h-full overflow-y-auto lg:scrollbar-thin lg:scrollbar-thumb-slate-300 lg:scrollbar-thumb-rounded-sm pt-12">
             {children}
           </div>
 
