@@ -1,9 +1,9 @@
+import { db } from "@/lib/db";
+import { customAlphabet } from "nanoid";
+
 import { NextAuthOptions, getServerSession } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import GoogleProvider from "next-auth/providers/google";
-
-import { nanoid } from "nanoid";
-import { db } from "@/lib/db";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
@@ -15,8 +15,8 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
   ],
   callbacks: {
@@ -51,7 +51,10 @@ export const authOptions: NextAuthOptions = {
             id: dbUser.id,
           },
           data: {
-            username: nanoid(10),
+            username: customAlphabet(
+              "0123456789abcdefghijklmnopqrstuvwxyz",
+              10
+            )(),
           },
         });
       }
