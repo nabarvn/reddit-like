@@ -1,15 +1,15 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import axios, { AxiosError } from "axios";
+import { Button } from "@/components/ui";
+import { useEffect, useState } from "react";
 import useCustomToast from "@/hooks/use-custom-toast";
 import { usePrevious } from "@mantine/hooks";
 import { VoteType } from "@prisma/client";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui";
 import { ArrowBigDown, ArrowBigUp } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { PostVoteRequest } from "@/lib/validators/vote";
-import axios, { AxiosError } from "axios";
 import { toast } from "@/hooks/use-toast";
 
 interface PostVoteClientProps {
@@ -23,6 +23,8 @@ const PostVoteClient = ({
   initialPostVotesAmount,
   initialPostVote,
 }: PostVoteClientProps) => {
+  const [isCooldown, setIsCooldown] = useState<boolean>(false);
+
   const [postVotesAmount, setPostVotesAmount] = useState<number>(
     initialPostVotesAmount
   );
@@ -39,7 +41,7 @@ const PostVoteClient = ({
     setCurrentPostVote(initialPostVote);
   }, [initialPostVote]);
 
-  const { mutate: postVoter } = useMutation({
+  const { mutate: postVoter, isLoading } = useMutation({
     mutationFn: async (voteType: VoteType) => {
       const payload: PostVoteRequest = {
         postId,
@@ -65,7 +67,7 @@ const PostVoteClient = ({
       }
 
       return toast({
-        title: "Something went wrong.",
+        title: "Something went wrong",
         description: "Your vote was not registered, please try again.",
         variant: "destructive",
       });
@@ -93,13 +95,22 @@ const PostVoteClient = ({
     },
   });
 
+  const handleVote = (voteType: VoteType) => {
+    if (isCooldown) return;
+    setIsCooldown(true);
+    postVoter(voteType);
+
+    setTimeout(() => setIsCooldown(false), 2000);
+  };
+
   return (
-    <div className='flex flex-col gap-4 sm:gap-0 sm:w-20 pr-3 md:pr-6 pb-4 sm:pb-0'>
+    <div className="flex flex-col gap-4 sm:gap-0 sm:w-20 pr-3 md:pr-6 pb-4 sm:pb-0">
       <Button
-        size='sm'
-        variant='ghost'
-        aria-label='upvote'
-        onClick={() => postVoter("UP")}
+        size="sm"
+        variant="ghost"
+        aria-label="upvote"
+        onClick={() => handleVote("UP")}
+        disabled={isLoading}
       >
         <ArrowBigUp
           className={cn("h-5 w-5 text-zinc-700", {
@@ -108,15 +119,16 @@ const PostVoteClient = ({
         />
       </Button>
 
-      <p className='text-center font-medium text-sm text-zinc-900 py-2'>
+      <p className="text-center font-medium text-sm text-zinc-900 py-2">
         {postVotesAmount}
       </p>
 
       <Button
-        size='sm'
-        variant='ghost'
-        aria-label='downvote'
-        onClick={() => postVoter("DOWN")}
+        size="sm"
+        variant="ghost"
+        aria-label="downvote"
+        onClick={() => handleVote("DOWN")}
+        disabled={isLoading}
       >
         <ArrowBigDown
           className={cn("h-5 w-5 text-zinc-700", {
