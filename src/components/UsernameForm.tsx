@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   CardContent,
@@ -17,10 +17,12 @@ import {
 import { Button, Card, Input, Label } from "@/components/ui";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+
 import {
   UsernameUpdateRequest,
   UsernameValidator,
 } from "@/lib/validators/username";
+
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 
@@ -54,7 +56,7 @@ const UsernameForm = ({ user, className, ...props }: UsernameFormProps) => {
       if (err instanceof AxiosError) {
         if (err.response?.status === 409) {
           return toast({
-            title: "Username already taken.",
+            title: "Username already taken",
             description: "Please choose another handle.",
             variant: "destructive",
           });
@@ -62,14 +64,15 @@ const UsernameForm = ({ user, className, ...props }: UsernameFormProps) => {
       }
 
       return toast({
-        title: "Something went wrong.",
+        title: "Something went wrong",
         description: "Your username was not updated, please try again.",
         variant: "destructive",
       });
     },
     onSuccess: () => {
       toast({
-        description: "Your username has been updated successfully!",
+        title: "Success!",
+        description: "Your username has been updated.",
       });
 
       router.refresh();
@@ -92,24 +95,26 @@ const UsernameForm = ({ user, className, ...props }: UsernameFormProps) => {
         </CardHeader>
 
         <CardContent>
-          <div className='relative grid gap-1'>
-            <div className='absolute top-0 left-0 w-8 h-10 grid place-items-center'>
-              <span className='text-sm text-zinc-400'>u/</span>
+          <div className="relative grid gap-1">
+            <div className="absolute top-0 left-0 w-8 h-10 grid place-items-center">
+              <span className="text-sm text-zinc-400">u/</span>
             </div>
 
-            <Label className='sr-only' htmlFor='name'>
+            <Label className="sr-only" htmlFor="name">
               Name
             </Label>
 
             <Input
-              id='name'
-              className='w-[200px] md:w-[300px] pl-6'
+              id="name"
+              className="w-[200px] md:w-[300px] pl-6"
               size={32}
               {...register("name")}
             />
 
             {errors?.name && (
-              <p className='text-xs text-red-600 px-1'>{errors.name.message}</p>
+              <p className="text-xs text-red-600 px-1 pt-1">
+                {errors.name.message}
+              </p>
             )}
           </div>
         </CardContent>
