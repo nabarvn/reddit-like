@@ -1,8 +1,8 @@
+import Image from "next/image";
 import { User } from "next-auth";
+import { Icons } from "@/components";
 import { Avatar } from "@/components/ui";
 import { AvatarFallback } from "@/components/ui/Avatar";
-import Image from "next/image";
-import { Icons } from "@/components";
 import { AvatarProps } from "@radix-ui/react-avatar";
 
 interface UserAvatarProps extends AvatarProps {
@@ -13,19 +13,19 @@ const UserAvatar = ({ user, ...props }: UserAvatarProps) => {
   return (
     <Avatar {...props}>
       {user.image ? (
-        <div className='relative aspect-square h-full w-full'>
+        <div className="relative aspect-square h-full w-full">
           <Image
             src={user.image}
-            alt='PFP'
-            referrerPolicy='no-referrer'
+            alt="PFP"
+            referrerPolicy="no-referrer"
             fill
-            sizes='100vh'
+            sizes="100vh"
           />
         </div>
       ) : (
         <AvatarFallback>
-          <span className='sr-only'>{user?.name}</span>
-          <Icons.user className='h-4 w-4' />
+          <span className="sr-only">{user?.name}</span>
+          <Icons.user className="h-4 w-4" />
         </AvatarFallback>
       )}
     </Avatar>
