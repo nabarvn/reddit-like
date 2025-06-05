@@ -1,18 +1,23 @@
 "use client";
 
-import { CommentVoteSystem, UserAvatar } from "@/components";
+import { useRef, useState } from "react";
+import { useSession } from "next-auth/react";
+import axios, { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 import { Button, Label, Textarea } from "@/components/ui";
 import useCustomToast from "@/hooks/use-custom-toast";
 import { toast } from "@/hooks/use-toast";
 import { formatTimeToNow } from "@/lib/utils";
 import { CommentRequest } from "@/lib/validators/comment";
-import { Comment, CommentVote, User } from "@prisma/client";
-import { useMutation } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { Comment, CommentVote, User } from "@prisma/client";
+
+import {
+  CommentDeleteButton,
+  CommentVoteSystem,
+  UserAvatar,
+} from "@/components";
 
 type PartialCommentVote = Pick<CommentVote, "type">;
 
@@ -34,6 +39,7 @@ const PostComment = ({
   initialCommentVotesAmount,
   initialCommentVote,
 }: PostCommentProps) => {
+  const queryClient = useQueryClient();
   const { data: session } = useSession();
   const { loginToast } = useCustomToast();
 
@@ -72,75 +78,81 @@ const PostComment = ({
       });
     },
     onSuccess: () => {
-      router.refresh();
+      queryClient.invalidateQueries(["comments"]);
       setInput("");
       setIsReplying(false);
     },
   });
 
   return (
-    <div ref={commentRef} className='flex flex-col'>
-      <div className='flex items-center'>
+    <div ref={commentRef} className="flex flex-col">
+      <div className="flex items-center">
         <UserAvatar
           user={{
             name: comment.author.name || null,
             image: comment.author.image || null,
           }}
-          className='h-6 w-6'
+          className="h-6 w-6"
         />
 
-        <div className='flex items-center gap-x-1 ml-2'>
-          <p className='text-sm font-medium text-gray-900'>
+        <div className="flex items-center gap-x-1 ml-2">
+          <p className="text-sm font-medium text-gray-900">
             u/{comment.author.username}
           </p>
 
-          <span className='text-gray-500 mb-1'> • </span>
+          <span className="text-gray-500 mb-1"> • </span>
 
-          <p className='max-h-40 truncate text-xs text-zinc-500'>
+          <p className="max-h-40 truncate text-xs text-zinc-500">
             {formatTimeToNow(new Date(comment.createdAt))}
           </p>
         </div>
       </div>
 
-      <p className='text-sm text-zinc-900 mt-2 ml-8'>{comment.text}</p>
+      <p className="text-sm text-zinc-900 mt-2 ml-8">{comment.text}</p>
 
-      <div className='flex flex-wrap items-center gap-2 mt-2 ml-8'>
-        <CommentVoteSystem
-          commentId={comment.id}
-          initialCommentVotesAmount={initialCommentVotesAmount}
-          initialCommentVote={initialCommentVote?.type}
-        />
+      <div className="flex flex-wrap items-center gap-2 mt-2 ml-8">
+        <div className="flex items-center gap-1 mt-2">
+          <CommentVoteSystem
+            commentId={comment.id}
+            initialCommentVotesAmount={initialCommentVotesAmount}
+            initialCommentVote={initialCommentVote?.type}
+          />
 
-        <Button
-          size='xs'
-          variant='ghost'
-          onClick={() => {
-            if (!session) return router.push("/sign-in");
-            setIsReplying(true);
-          }}
-        >
-          <MessageSquare className='h-4 w-4 mr-1' />
-          Reply
-        </Button>
+          <Button
+            size="xs"
+            variant="ghost"
+            onClick={() => {
+              if (!session) return router.push("/sign-in");
+              setIsReplying(true);
+            }}
+          >
+            <MessageSquare className="h-4 w-4 mr-1" />
+            Reply
+          </Button>
+
+          {session?.user.id === comment.authorId && (
+            <CommentDeleteButton commentId={comment.id} />
+          )}
+        </div>
 
         {isReplying ? (
-          <div className='grid w-full gap-1.5'>
-            <Label htmlFor='reply'>Your reply</Label>
+          <div className="grid w-full gap-1.5">
+            <Label htmlFor="reply">Your reply</Label>
 
-            <div className='mt-2'>
+            <div className="mt-2">
               <Textarea
-                id='reply'
+                id="reply"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 rows={1}
-                placeholder='What are your thoughts?'
-                className='resize-none'
+                placeholder="What are your thoughts?"
+                className="resize-none"
               />
 
-              <div className='flex justify-end gap-2 mt-2'>
+              <div className="flex justify-end gap-2 mt-2">
                 <Button
                   tabIndex={-1}
-                  variant='subtle'
+                  variant="subtle"
                   onClick={() => setIsReplying(false)}
                 >
                   Cancel
