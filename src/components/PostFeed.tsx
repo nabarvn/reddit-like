@@ -1,14 +1,14 @@
 "use client";
 
-import { INFINITE_SCROLL_PAGINATION_RESULTS } from "@/config";
-import { ExtendedPost } from "@/types/db";
-import { useIntersection } from "@mantine/hooks";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { ExtendedPost } from "@/types/db";
+import { useEffect } from "react";
+import { useIntersection } from "@mantine/hooks";
+import { INFINITE_SCROLL_PAGINATION_RESULTS } from "@/config";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { PostCard, PostSkeleton } from "@/components";
 import { useSession } from "next-auth/react";
-import { useEffect, useRef } from "react";
-import { PostCard } from "@/components";
-import { Loader, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface PostFeedProps {
   initialPosts: ExtendedPost[];
@@ -16,18 +16,18 @@ interface PostFeedProps {
 }
 
 const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
-  const lastViewablePostRef = useRef<HTMLElement>(null);
   const { data: session } = useSession();
 
   const { ref: observerRef, entry } = useIntersection({
-    root: lastViewablePostRef.current,
+    // observe visibility relative to viewport (default)
+    root: null,
     threshold: 1,
   });
 
   // infinite scrolling functionality
   const { data, isFetched, fetchNextPage, isFetchingNextPage } =
     useInfiniteQuery(
-      ["infinite-query"],
+      ["infinite-query", subredditName ?? "home"],
       async ({ pageParam = 1 }) => {
         // api endpoint to fetch more posts from db
         const query =
@@ -39,7 +39,9 @@ const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
         return data as ExtendedPost[];
       },
       {
-        getNextPageParam: (_, pages) => {
+        getNextPageParam: (lastPage, pages) => {
+          // stop when API returns no items
+          if (!lastPage || lastPage.length === 0) return undefined;
           return pages.length + 1;
         },
         initialData: { pages: [initialPosts], pageParams: [1] },
@@ -52,10 +54,17 @@ const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
     }
   }, [entry, fetchNextPage]);
 
+  // if initialPosts is empty, ensure the first page is fetched on mount
+  useEffect(() => {
+    if (initialPosts.length === 0 && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [initialPosts.length, isFetchingNextPage, fetchNextPage]);
+
   const posts = data?.pages.flatMap((page) => page) ?? initialPosts;
 
   return isFetched ? (
-    <ul className='flex flex-col col-span-2 space-y-6'>
+    <ul className="flex flex-col col-span-2 space-y-6">
       {posts.map((post, index) => {
         // calculate total post votes amount
         const postVotesAmount = post.postVotes.reduce((acc, postVote) => {
@@ -73,7 +82,7 @@ const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
         // render more posts when intersection observer crosses the last viewable post
         if (index === posts.length - 1) {
           return (
-            <li key={post.id} ref={observerRef} className='flex flex-col'>
+            <li key={post.id} ref={observerRef} className="flex flex-col">
               <PostCard
                 post={post}
                 subredditName={post.subreddit.name}
@@ -106,7 +115,11 @@ const PostFeed = ({ initialPosts, subredditName }: PostFeedProps) => {
       })}
     </ul>
   ) : (
-    <Loader className='h-9 w-9 col-span-2 m-auto animate-spin' />
+    <li className="flex flex-col col-span-2 space-y-6">
+      <PostSkeleton />
+      <PostSkeleton />
+      <PostSkeleton />
+    </li>
   );
 };
 
