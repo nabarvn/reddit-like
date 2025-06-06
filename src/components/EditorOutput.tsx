@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { EditorSkeleton } from "@/components";
 
 import {
   CustomCodeRenderer,
@@ -13,7 +14,7 @@ interface EditorOutputProps {
 
 const Output = dynamic(
   async () => (await import("editorjs-react-renderer")).default,
-  { ssr: false }
+  { ssr: false, loading: () => <EditorSkeleton /> }
 );
 
 const renderers = {
@@ -35,7 +36,7 @@ const EditorOutput = ({ content }: EditorOutputProps) => {
       data={content}
       renderers={renderers}
       style={style}
-      className='text-sm'
+      className="text-sm"
     />
   );
 };
