@@ -1,15 +1,15 @@
 "use client";
 
+import axios from "axios";
 import TextareaAutosize from "react-textarea-autosize";
 import { useForm } from "react-hook-form";
 import { PostCreationRequest, PostValidator } from "@/lib/validators/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type EditorJS from "@editorjs/editorjs";
-import { uploadFiles } from "@/lib/uploadthing";
+import { useUploadThing } from "@/lib/uploadthing";
 import { toast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { usePathname, useRouter } from "next/navigation";
 
 interface EditorProps {
@@ -17,11 +17,18 @@ interface EditorProps {
 }
 
 const Editor = ({ subredditId }: EditorProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const editorRef = useRef<EditorJS>();
   const titleRef = useRef<HTMLTextAreaElement | null>(null);
   const [isMounted, setisMounted] = useState<boolean>(false);
-  const pathname = usePathname();
-  const router = useRouter();
+
+  const { startUpload } = useUploadThing("imageUploader");
+  const uploadFuncRef = useRef(startUpload);
+
+  useEffect(() => {
+    uploadFuncRef.current = startUpload;
+  }, [startUpload]);
 
   const {
     register,
@@ -72,12 +79,18 @@ const Editor = ({ subredditId }: EditorProps) => {
             config: {
               uploader: {
                 async uploadByFile(file: File) {
-                  const [res] = await uploadFiles([file], "imageUploader");
+                  const res = await uploadFuncRef.current([file]);
+
+                  if (!res) {
+                    return {
+                      success: 0,
+                    };
+                  }
 
                   return {
                     success: 1,
                     file: {
-                      url: res.fileUrl,
+                      url: (res[0] as unknown as { url: string }).url,
                     },
                   };
                 },
@@ -105,7 +118,7 @@ const Editor = ({ subredditId }: EditorProps) => {
     if (Object.keys(errors).length) {
       for (const [_, value] of Object.entries(errors)) {
         toast({
-          title: "Something went wrong.",
+          title: "Something went wrong",
           description: (value as { message: string }).message,
           variant: "destructive",
         });
@@ -128,7 +141,7 @@ const Editor = ({ subredditId }: EditorProps) => {
 
       // cleanup process
       return () => {
-        // Uninitialize the editor
+        // uninitialize the editor
         editorRef.current?.destroy();
         editorRef.current = undefined;
       };
@@ -153,7 +166,7 @@ const Editor = ({ subredditId }: EditorProps) => {
     },
     onError: () => {
       return toast({
-        title: "Something went wrong.",
+        title: "Something went wrong",
         description: "Your post was not published, please try again later.",
         variant: "destructive",
       });
@@ -195,13 +208,13 @@ const Editor = ({ subredditId }: EditorProps) => {
   const { ref: destructuredTitleRef, ...rest } = register("title");
 
   return (
-    <div className='w-full bg-zinc-50 rounded-lg border border-zinc-200 p-4'>
+    <div className="w-full bg-zinc-50 rounded-lg border border-zinc-200 p-4">
       <form
-        id='subreddit-post-form'
-        className='w-fit'
+        id="subreddit-post-form"
+        className="w-fit"
         onSubmit={handleSubmit(onPostSubmit)}
       >
-        <div className='prose prose-stone dark:prose-invert'>
+        <div className="prose prose-stone dark:prose-invert">
           <TextareaAutosize
             ref={(e) => {
               // assign ref to react hook form
@@ -214,12 +227,12 @@ const Editor = ({ subredditId }: EditorProps) => {
               }
             }}
             {...rest}
-            placeholder='Title'
-            className='w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold focus:outline-none'
+            placeholder="Title"
+            className="w-full resize-none appearance-none overflow-hidden bg-transparent text-5xl font-bold focus:outline-none"
           />
 
           {/* match div id with the editor holder name */}
-          <div id='editor' className='min-h-[500px]' />
+          <div id="editor" className="min-h-[500px]" />
         </div>
       </form>
     </div>
