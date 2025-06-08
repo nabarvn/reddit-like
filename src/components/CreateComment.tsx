@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
+import axios, { AxiosError } from "axios";
 import { Button, Label, Textarea } from "@/components/ui";
 import useCustomToast from "@/hooks/use-custom-toast";
-import { toast } from "@/hooks/use-toast";
 import { CommentRequest } from "@/lib/validators/comment";
-import { useMutation } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface CreateCommentProps {
   postId: string;
@@ -15,9 +14,9 @@ interface CreateCommentProps {
 }
 
 const CreateComment = ({ postId, replyToId }: CreateCommentProps) => {
+  const queryClient = useQueryClient();
   const [input, setInput] = useState<string>("");
   const { loginToast } = useCustomToast();
-  const router = useRouter();
 
   const { mutate: postComment, isLoading } = useMutation({
     mutationFn: async ({ postId, text, replyToId }: CommentRequest) => {
@@ -48,26 +47,26 @@ const CreateComment = ({ postId, replyToId }: CreateCommentProps) => {
       });
     },
     onSuccess: () => {
-      router.refresh();
+      queryClient.invalidateQueries(["comments"]);
       setInput("");
     },
   });
 
   return (
-    <div className='grid w-full gap-1.5'>
-      <Label htmlFor='comment'>Your comment</Label>
+    <div className="grid w-full gap-1.5">
+      <Label htmlFor="comment">Your comment</Label>
 
-      <div className='mt-2'>
+      <div className="mt-2">
         <Textarea
-          id='comment'
+          id="comment"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           rows={1}
-          placeholder='What are your thoughts?'
-          className='resize-none'
+          placeholder="What are your thoughts?"
+          className="resize-none"
         />
 
-        <div className='flex justify-end mt-2'>
+        <div className="flex justify-end mt-2">
           <Button
             isLoading={isLoading}
             disabled={!input}
