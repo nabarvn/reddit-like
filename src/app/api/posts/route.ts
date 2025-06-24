@@ -1,6 +1,6 @@
-import { getAuthSession } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { z } from "zod";
+import { db } from "@/lib/db";
+import { getAuthSession } from "@/lib/auth";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
           name: subredditName,
         },
       };
-    } else if (session) {
+    } else if (session && joinedCommunityIDs.length > 0) {
       whereClause = {
         subreddit: {
           id: {
@@ -73,7 +73,11 @@ export async function GET(req: Request) {
       where: whereClause,
     });
 
-    return new Response(JSON.stringify(posts));
+    return new Response(JSON.stringify(posts), {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   } catch (error) {
     // for any kind of parsing error
     if (error instanceof z.ZodError) {
