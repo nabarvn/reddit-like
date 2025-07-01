@@ -1,49 +1,51 @@
-import { CreateComment, PostComment } from "@/components";
-import { Comment, CommentVote, User } from "@prisma/client";
+"use client";
+
+import axios from "axios";
 import { Session } from "next-auth";
+import { Comment, CommentVote, User } from "@prisma/client";
+import { useQuery } from "@tanstack/react-query";
+import { CommentSkeleton, CreateComment, PostComment } from "@/components";
 
 type ReplyComment = Comment & {
-  author: User;
-  commentVotes: CommentVote[];
-};
-
-type ExtendedComment = Comment & {
-  author: User;
-  commentVotes: CommentVote[];
   replies: ReplyComment[];
+  commentVotes: CommentVote[];
+  author: User;
 };
 
 interface CommentSectionProps {
   session: Session | null;
   postId: string;
-  getComments: () => Promise<ExtendedComment[]>;
 }
 
-const CommentSection = async ({
-  session,
-  postId,
-  getComments,
-}: CommentSectionProps) => {
-  // Any method involving `authOptions` throws an error in a server component which is not `page.tsx` or `layout.tsx`
-  // const session = await getServerSession();   -> OK
-  // const session = await getServerSession(authOptions);   -> ERROR
-  // const session = await getAuthSession();   -> ERROR
+const CommentSection = ({ session, postId }: CommentSectionProps) => {
+  const { data: comments, isLoading } = useQuery<ReplyComment[]>({
+    queryKey: ["comments"],
+    queryFn: async () => {
+      const { data } = await axios.get(
+        `/api/subreddit/post/comment?postId=${postId}`
+      );
 
-  let comments: ExtendedComment[] = [];
-
-  if (getComments) {
-    comments = await getComments();
-  }
+      return data;
+    },
+  });
 
   return (
-    <div className='flex flex-col gap-y-4 mt-4'>
-      <hr className='w-full h-px my-6' />
+    <div className="flex flex-col gap-y-4 mt-4">
+      <hr className="w-full h-px my-6" />
 
       <CreateComment postId={postId} />
 
-      <div className='flex flex-col gap-y-6 mt-4'>
+      <div className="flex flex-col gap-y-6 mt-4">
+        {isLoading && (
+          <li className="flex flex-col col-span-2 space-y-6">
+            <CommentSkeleton />
+            <CommentSkeleton />
+            <CommentSkeleton />
+          </li>
+        )}
+
         {comments
-          .filter((comment) => !comment.replyToId)
+          ?.filter((comment) => !comment.replyToId)
           .map((topLevelComment) => {
             const topLevelCommentVotesAmount =
               topLevelComment.commentVotes.reduce((acc, commentVote) => {
@@ -58,11 +60,11 @@ const CommentSection = async ({
             );
 
             return (
-              <div key={topLevelComment.id} className='flex flex-col'>
+              <div key={topLevelComment.id} className="flex flex-col">
                 {/* render top-level comments */}
-                <div className='mb-2'>
+                <div className="mb-2">
                   <PostComment
-                    key='comment'
+                    key="comment"
                     postId={postId}
                     comment={topLevelComment}
                     initialCommentVotesAmount={topLevelCommentVotesAmount}
@@ -93,10 +95,10 @@ const CommentSection = async ({
                     return (
                       <div
                         key={firstLevelReply.id}
-                        className='border-l-2 border-zinc-200 py-2 pl-4 ml-2'
+                        className="border-l-2 border-zinc-200 py-2 pl-4 ml-2"
                       >
                         <PostComment
-                          key='reply'
+                          key="reply"
                           postId={postId}
                           comment={firstLevelReply}
                           initialCommentVotesAmount={firstLevelReplyVotesAmount}
