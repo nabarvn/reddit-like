@@ -1,16 +1,16 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import axios, { AxiosError } from "axios";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui";
+import { VoteType } from "@prisma/client";
 import useCustomToast from "@/hooks/use-custom-toast";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 import { CommentVoteRequest } from "@/lib/validators/vote";
 import { usePrevious } from "@mantine/hooks";
-import { VoteType } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
 import { ArrowBigDown, ArrowBigUp } from "lucide-react";
-import { useEffect, useState } from "react";
 
 interface CommentVoteSystemProps {
   commentId: string;
@@ -23,6 +23,8 @@ const CommentVoteSystem = ({
   initialCommentVotesAmount,
   initialCommentVote,
 }: CommentVoteSystemProps) => {
+  const [isCooldown, setIsCooldown] = useState<boolean>(false);
+
   const [commentVotesAmount, setCommentVotesAmount] = useState<number>(
     initialCommentVotesAmount
   );
@@ -39,7 +41,7 @@ const CommentVoteSystem = ({
     setCurrentCommentVote(initialCommentVote);
   }, [initialCommentVote]);
 
-  const { mutate: commentVoter } = useMutation({
+  const { mutate: commentVoter, isLoading } = useMutation({
     mutationFn: async (voteType: VoteType) => {
       const payload: CommentVoteRequest = {
         commentId,
@@ -65,7 +67,7 @@ const CommentVoteSystem = ({
       }
 
       return toast({
-        title: "Something went wrong.",
+        title: "Something went wrong",
         description: "Your vote was not registered, please try again.",
         variant: "destructive",
       });
@@ -93,13 +95,22 @@ const CommentVoteSystem = ({
     },
   });
 
+  const handleVote = (voteType: VoteType) => {
+    if (isCooldown) return;
+    setIsCooldown(true);
+    commentVoter(voteType);
+
+    setTimeout(() => setIsCooldown(false), 2000);
+  };
+
   return (
-    <div className='flex gap-1'>
+    <div className="flex gap-1">
       <Button
-        size='xs'
-        variant='ghost'
-        aria-label='upvote'
-        onClick={() => commentVoter("UP")}
+        size="xs"
+        variant="ghost"
+        aria-label="upvote"
+        onClick={() => handleVote("UP")}
+        disabled={isLoading}
       >
         <ArrowBigUp
           className={cn("h-5 w-5 text-zinc-700", {
@@ -108,15 +119,16 @@ const CommentVoteSystem = ({
         />
       </Button>
 
-      <p className='text-center font-medium text-sm text-zinc-900 p-2'>
+      <p className="text-center font-medium text-sm text-zinc-900 p-2">
         {commentVotesAmount}
       </p>
 
       <Button
-        size='xs'
-        variant='ghost'
-        aria-label='downvote'
-        onClick={() => commentVoter("DOWN")}
+        size="xs"
+        variant="ghost"
+        aria-label="downvote"
+        onClick={() => handleVote("DOWN")}
+        disabled={isLoading}
       >
         <ArrowBigDown
           className={cn("h-5 w-5 text-zinc-700", {
